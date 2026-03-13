@@ -1,4 +1,5 @@
 <?php
+require __DIR__ . '/auth.php';
 $pageTitle = 'Smart Barber Booking - Home';
 require __DIR__ . '/data.php';
 require __DIR__ . '/partials/header.php';
@@ -6,7 +7,16 @@ require __DIR__ . '/partials/header.php';
 
 <section class="bg-white border border-slate-200 rounded-xl p-6 mb-6">
     <h1 class="text-2xl font-bold mb-2">Smart Barber Booking & Management System</h1>
-    <p class="text-slate-600">Basic week-1 starter in simple PHP and Tailwind CSS (no MySQL connection yet).</p>
+    <p class="text-slate-600">Week 2: Role-Based Authentication and Access Control.</p>
+    <?php if (isLoggedIn()): ?>
+        <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p class="text-sm text-green-800"><strong>✓ You are logged in as:</strong> <?php echo htmlspecialchars(getCurrentUserName()); ?> (<?php echo ucfirst(getCurrentRole()); ?>)</p>
+        </div>
+    <?php else: ?>
+        <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p class="text-sm text-blue-800"><strong>Login Required:</strong> <a href="login.php" class="underline font-medium">Click here to login</a> to access the system.</p>
+        </div>
+    <?php endif; ?>
 </section>
 
 <section class="grid md:grid-cols-3 gap-4 mb-6">

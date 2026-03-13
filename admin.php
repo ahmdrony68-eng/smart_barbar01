@@ -1,11 +1,16 @@
 <?php
+require __DIR__ . '/auth.php';
+
+// Require admin role
+requireRole('admin');
+
 $pageTitle = 'Admin Dashboard';
 require __DIR__ . '/partials/header.php';
 ?>
 
 <section class="bg-white border border-slate-200 rounded-xl p-6 mb-6">
-    <h1 class="text-2xl font-bold mb-2">Admin Dashboard (Basic)</h1>
-    <p class="text-slate-600 text-sm">Placeholder for week-6 reporting and management features.</p>
+    <h1 class="text-2xl font-bold mb-2">Admin Dashboard</h1>
+    <p class="text-slate-600 text-sm">Welcome, <?php echo htmlspecialchars(getCurrentUserName()); ?>! System overview and management.</p>
 </section>
 
 <section class="grid md:grid-cols-3 gap-4">

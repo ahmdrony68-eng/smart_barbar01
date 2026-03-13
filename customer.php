@@ -1,12 +1,17 @@
 <?php
-$pageTitle = 'Customer Portal';
+require __DIR__ . '/auth.php';
 require __DIR__ . '/data.php';
+
+// Require customer role
+requireRole('customer');
+
+$pageTitle = 'Customer Portal';
 require __DIR__ . '/partials/header.php';
 ?>
 
 <section class="bg-white border border-slate-200 rounded-xl p-6 mb-6">
-    <h1 class="text-2xl font-bold mb-2">Customer Booking Portal (Basic)</h1>
-    <p class="text-slate-600 text-sm">Week-1 static view for barber specialization and available slots.</p>
+    <h1 class="text-2xl font-bold mb-2">Customer Booking Portal</h1>
+    <p class="text-slate-600 text-sm">Welcome, <?php echo htmlspecialchars(getCurrentUserName()); ?>! Browse and book your appointments.</p>
 </section>
 
 <section class="grid md:grid-cols-2 gap-4 mb-6">

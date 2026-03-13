@@ -1,11 +1,16 @@
 <?php
+require __DIR__ . '/auth.php';
+
+// Require barber role
+requireRole('barber');
+
 $pageTitle = 'Barber Dashboard';
 require __DIR__ . '/partials/header.php';
 ?>
 
 <section class="bg-white border border-slate-200 rounded-xl p-6 mb-6">
-    <h1 class="text-2xl font-bold mb-2">Barber Dashboard (Basic)</h1>
-    <p class="text-slate-600 text-sm">Placeholder for roster setup and appointment management.</p>
+    <h1 class="text-2xl font-bold mb-2">Barber Dashboard</h1>
+    <p class="text-slate-600 text-sm">Welcome, <?php echo htmlspecialchars(getCurrentUserName()); ?>! Manage your roster and appointments.</p>
 </section>
 
 <section class="grid md:grid-cols-2 gap-4">
