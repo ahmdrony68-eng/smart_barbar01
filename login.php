@@ -62,7 +62,6 @@ $isLoginPage = true;
         <div class="max-w-md mx-auto">
             <section class="bg-white border border-slate-200 rounded-xl p-8 mb-6">
                 <h1 class="text-2xl font-bold mb-2">Login</h1>
-                <p class="text-slate-600 text-sm mb-6">Week 2: Role-Based Authentication</p>
 
                 <?php if ($error): ?>
                     <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">

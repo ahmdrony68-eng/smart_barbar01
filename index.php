@@ -7,7 +7,6 @@ require __DIR__ . '/partials/header.php';
 
 <section class="bg-white border border-slate-200 rounded-xl p-6 mb-6">
     <h1 class="text-2xl font-bold mb-2">Smart Barber Booking & Management System</h1>
-    <p class="text-slate-600">Week 2: Role-Based Authentication and Access Control.</p>
     <?php if (isLoggedIn()): ?>
         <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
             <p class="text-sm text-green-800"><strong>✓ You are logged in as:</strong> <?php echo htmlspecialchars(getCurrentUserName()); ?> (<?php echo ucfirst(getCurrentRole()); ?>)</p>
@@ -38,26 +37,17 @@ require __DIR__ . '/partials/header.php';
 </section>
 
 <section class="bg-white border border-slate-200 rounded-xl p-6 mb-6">
-    <h2 class="text-lg font-semibold mb-3">Sample Services (Static Data)</h2>
+    <h2 class="text-lg font-semibold mb-3">Available Services</h2>
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
         <?php foreach ($services as $service): ?>
             <div class="border border-slate-200 rounded-lg p-3">
                 <h3 class="font-medium"><?php echo htmlspecialchars($service['name']); ?></h3>
-                <p class="text-sm text-slate-600 mt-1">Duration: <?php echo htmlspecialchars($service['duration']); ?></p>
-                <p class="text-sm text-slate-600">Price: <?php echo htmlspecialchars($service['price']); ?></p>
+                <p class="text-sm text-slate-600 mt-1">Duration: <?php echo htmlspecialchars($service['duration']); ?> mins</p>
+                <p class="text-sm text-slate-600">Price: $<?php echo number_format($service['price'], 2); ?></p>
             </div>
         <?php endforeach; ?>
     </div>
 </section>
-
-<section class="bg-white border border-slate-200 rounded-xl p-6">
-    <h2 class="text-lg font-semibold mb-3">Implementation Timeline (From Proposal)</h2>
-    <ul class="space-y-2 text-sm text-slate-700">
-        <li><span class="font-medium">Week 1:</span> Requirements, ERD, system design (current setup phase)</li>
-        <li><span class="font-medium">Week 2:</span> Authentication and role-based access</li>
-        <li><span class="font-medium">Week 3:</span> Barber profiles, specialization, services module</li>
-        <li><span class="font-medium">Week 4:</span> Roster setup, slot generation, double-booking prevention</li>
-        <li><span class="font-medium">Week 5:</span> Booking workflow, barber dashboard updates</li>
         <li><span class="font-medium">Week 6:</span> Admin reports, analytics, testing</li>
     </ul>
 </section>

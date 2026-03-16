@@ -1,40 +1,12 @@
 <?php
 /**
  * Authentication Helper
- * Week 2: Session-based auth with role-based access control
+ * Session-based auth with role-based access control using MySQL
  */
 
-session_start();
+require_once __DIR__ . '/database.php';
 
-// Sample user database (Week 2 - in-memory)
-// In future weeks, this will connect to MySQL
-$users = [
-    'customer1@email.com' => [
-        'password' => password_hash('customer123', PASSWORD_BCRYPT),
-        'name' => 'Ahmed Hassan',
-        'role' => 'customer'
-    ],
-    'customer2@email.com' => [
-        'password' => password_hash('customer456', PASSWORD_BCRYPT),
-        'name' => 'Fatima Ali',
-        'role' => 'customer'
-    ],
-    'barber1@email.com' => [
-        'password' => password_hash('barber123', PASSWORD_BCRYPT),
-        'name' => 'Ali Khan',
-        'role' => 'barber'
-    ],
-    'barber2@email.com' => [
-        'password' => password_hash('barber456', PASSWORD_BCRYPT),
-        'name' => 'Usman Raza',
-        'role' => 'barber'
-    ],
-    'admin@email.com' => [
-        'password' => password_hash('admin123', PASSWORD_BCRYPT),
-        'name' => 'Admin User',
-        'role' => 'admin'
-    ],
-];
+session_start();
 
 /**
  * Check if user is logged in
@@ -62,6 +34,13 @@ function getCurrentRole() {
  */
 function getCurrentUserName() {
     return $_SESSION['user_name'] ?? null;
+}
+
+/**
+ * Get current user's email
+ */
+function getCurrentUserEmail() {
+    return $_SESSION['user_email'] ?? null;
 }
 
 /**
@@ -115,17 +94,23 @@ function requireAnyRole($roles) {
  * Authenticate user with email and password
  */
 function authenticateUser($email, $password) {
-    global $users;
+    global $pdo;
     
-    if (isset($users[$email])) {
-        $user = $users[$email];
-        if (password_verify($password, $user['password'])) {
+    try {
+        $stmt = $pdo->prepare("SELECT id, email, password, name, role FROM users WHERE email = ? LIMIT 1");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
+        
+        if ($user && password_verify($password, $user['password'])) {
             // Set session
-            $_SESSION['user_id'] = $email;
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_email'] = $user['email'];
             $_SESSION['role'] = $user['role'];
             $_SESSION['user_name'] = $user['name'];
             return true;
         }
+    } catch (Exception $e) {
+        error_log('Authentication error: ' . $e->getMessage());
     }
     return false;
 }
@@ -140,16 +125,36 @@ function logoutUser() {
 }
 
 /**
- * Get all users by role (for demo/admin purposes)
+ * Get all users by role
  */
 function getUsersByRole($role) {
-    global $users;
-    $result = [];
-    foreach ($users as $email => $user) {
-        if ($user['role'] === $role) {
-            $result[$email] = $user;
-        }
+    global $pdo;
+    
+    try {
+        $stmt = $pdo->prepare("SELECT id, email, name, role, specialization FROM users WHERE role = ? ORDER BY name");
+        $stmt->execute([$role]);
+        return $stmt->fetchAll();
+    } catch (Exception $e) {
+        error_log('Error fetching users: ' . $e->getMessage());
+        return [];
     }
-    return $result;
 }
+
+/**
+ * Get user by ID
+ */
+function getUserById($userId) {
+    global $pdo;
+    
+    try {
+        $stmt = $pdo->prepare("SELECT id, email, name, role, specialization FROM users WHERE id = ? LIMIT 1");
+        $stmt->execute([$userId]);
+        return $stmt->fetch();
+    } catch (Exception $e) {
+        error_log('Error fetching user: ' . $e->getMessage());
+        return null;
+    }
+}
+
 ?>
+
