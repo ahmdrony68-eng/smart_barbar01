@@ -10,8 +10,20 @@ require __DIR__ . '/partials/header.php';
 ?>
 
 <section class="bg-white border border-slate-200 rounded-xl p-6 mb-6">
-    <h1 class="text-2xl font-bold mb-2">Booking Portal</h1>
-    <p class="text-slate-600 text-sm">Welcome, <?php echo htmlspecialchars(getCurrentUserName()); ?>!</p>
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold mb-2">Booking Portal</h1>
+            <p class="text-slate-600 text-sm">Welcome, <?php echo htmlspecialchars(getCurrentUserName()); ?>!</p>
+        </div>
+        <div class="flex gap-3">
+            <a href="my_bookings.php" class="bg-slate-600 text-white px-4 py-2 rounded font-medium hover:bg-slate-700">
+                My Bookings
+            </a>
+            <a href="book_appointment.php" class="bg-blue-600 text-white px-4 py-2 rounded font-medium hover:bg-blue-700">
+                + Book Now
+            </a>
+        </div>
+    </div>
 </section>
 
 <section class="grid md:grid-cols-2 gap-4 mb-6">

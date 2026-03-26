@@ -10,12 +10,34 @@ require __DIR__ . '/partials/header.php';
     <?php if (isLoggedIn()): ?>
         <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
             <p class="text-sm text-green-800"><strong>✓ You are logged in as:</strong> <?php echo htmlspecialchars(getCurrentUserName()); ?> (<?php echo ucfirst(getCurrentRole()); ?>)</p>
+            <?php if (hasRole('customer')): ?>
+                <p class="text-sm text-green-800 mt-2"><a href="book_appointment.php" class="underline font-medium">Book an appointment now →</a></p>
+            <?php elseif (hasRole('barber')): ?>
+                <p class="text-sm text-green-800 mt-2"><a href="manage_roster.php" class="underline font-medium">Manage your roster →</a></p>
+            <?php elseif (hasRole('admin')): ?>
+                <p class="text-sm text-green-800 mt-2"><a href="admin.php" class="underline font-medium">View admin dashboard →</a></p>
+            <?php endif; ?>
         </div>
     <?php else: ?>
         <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p class="text-sm text-blue-800"><strong>Login Required:</strong> <a href="login.php" class="underline font-medium">Click here to login</a> to access the system.</p>
+            <p class="text-sm text-blue-800"><strong>Ready to book?</strong> <a href="login.php" class="underline font-medium">Click here to login</a> or use demo credentials.</p>
         </div>
     <?php endif; ?>
+</section>
+
+<section class="grid md:grid-cols-3 gap-4 mb-6">
+    <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <h2 class="font-semibold mb-2">✓ Authentication</h2>
+        <p class="text-sm text-slate-600">Role-based login with session management</p>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <h2 class="font-semibold mb-2">✓ Booking System</h2>
+        <p class="text-sm text-slate-600">Full appointment scheduling with slot management</p>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <h2 class="font-semibold mb-2">✓ Dashboard</h2>
+        <p class="text-sm text-slate-600">Admin reports, roster management, booking history</p>
+    </div>
 </section>
 
 <section class="grid md:grid-cols-3 gap-4 mb-6">

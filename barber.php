@@ -36,6 +36,15 @@ $myServices = getBarberServices(getCurrentUser());
                 <p class="font-medium"><?php echo htmlspecialchars($currentBarber['specialization'] ?? 'Not set'); ?></p>
             </div>
         </div>
+        
+        <div class="mt-4 flex gap-2">
+            <a href="manage_roster.php" class="flex-1 text-center bg-blue-600 text-white py-2 rounded font-medium hover:bg-blue-700">
+                Manage Roster
+            </a>
+            <a href="my_appointments.php" class="flex-1 text-center bg-slate-600 text-white py-2 rounded font-medium hover:bg-slate-700">
+                My Appointments
+            </a>
+        </div>
     </section>
     
     <!-- Services -->

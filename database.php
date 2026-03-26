@@ -153,6 +153,301 @@ function seedDatabase() {
     foreach ($services as $service) {
         $stmt->execute($service);
     }
+    
+    // Seed sample rosters
+    $rosters = [
+        [3, 'Monday', '09:00:00', '18:00:00'],
+        [3, 'Tuesday', '09:00:00', '18:00:00'],
+        [3, 'Wednesday', '09:00:00', '18:00:00'],
+        [3, 'Thursday', '09:00:00', '18:00:00'],
+        [3, 'Friday', '10:00:00', '19:00:00'],
+        [4, 'Monday', '11:00:00', '19:00:00'],
+        [4, 'Tuesday', '11:00:00', '19:00:00'],
+        [4, 'Wednesday', '11:00:00', '19:00:00'],
+        [4, 'Thursday', '11:00:00', '19:00:00'],
+        [4, 'Saturday', '10:00:00', '17:00:00'],
+    ];
+    
+    $stmt = $pdo->prepare("INSERT INTO barber_roster (barber_id, day_of_week, start_time, end_time) VALUES (?, ?, ?, ?)");
+    foreach ($rosters as $roster) {
+        $stmt->execute($roster);
+    }
+}
+
+/**
+ * Roster Management Functions
+ */
+
+function getBarberRoster($barberId) {
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM barber_roster WHERE barber_id = ? ORDER BY day_of_week");
+        $stmt->execute([$barberId]);
+        return $stmt->fetchAll();
+    } catch (Exception $e) {
+        error_log('Error fetching roster: ' . $e->getMessage());
+        return [];
+    }
+}
+
+function saveBarberRoster($barberId, $roster) {
+    global $pdo;
+    try {
+        // Delete existing roster
+        $pdo->prepare("DELETE FROM barber_roster WHERE barber_id = ?")->execute([$barberId]);
+        
+        // Insert new roster
+        $stmt = $pdo->prepare("INSERT INTO barber_roster (barber_id, day_of_week, start_time, end_time) VALUES (?, ?, ?, ?)");
+        foreach ($roster as $day => $times) {
+            if ($times['enabled']) {
+                $stmt->execute([$barberId, $day, $times['start'], $times['end']]);
+            }
+        }
+        return true;
+    } catch (Exception $e) {
+        error_log('Error saving roster: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Slot Generation Functions
+ */
+
+function generateSlotsForDate($barberId, $date) {
+    global $pdo;
+    try {
+        $dayOfWeek = date('l', strtotime($date)); // Monday, Tuesday, etc.
+        
+        // Get barber's working hours for this day
+        $stmt = $pdo->prepare("SELECT start_time, end_time FROM barber_roster WHERE barber_id = ? AND day_of_week = ? LIMIT 1");
+        $stmt->execute([$barberId, $dayOfWeek]);
+        $roster = $stmt->fetch();
+        
+        if (!$roster) {
+            return false; // Barber doesn't work on this day
+        }
+        
+        // Get service duration (default 30 mins)
+        $slotDuration = 30;
+        
+        // Generate 30-minute slots
+        $startTime = strtotime($roster['start_time']);
+        $endTime = strtotime($roster['end_time']);
+        $currentTime = $startTime;
+        
+        while ($currentTime < $endTime) {
+            $slotTime = date('H:i:s', $currentTime);
+            $nextSlot = $currentTime + ($slotDuration * 60);
+            
+            // Check if slot fits within working hours
+            if ($nextSlot <= $endTime) {
+                $stmt = $pdo->prepare("
+                    INSERT IGNORE INTO available_slots (barber_id, slot_date, slot_time, is_booked) 
+                    VALUES (?, ?, ?, 0)
+                ");
+                $stmt->execute([$barberId, $date, $slotTime]);
+            }
+            
+            $currentTime = $nextSlot;
+        }
+        
+        return true;
+    } catch (Exception $e) {
+        error_log('Error generating slots: ' . $e->getMessage());
+        return false;
+    }
+}
+
+function getAvailableSlots($barberId, $date) {
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare("
+            SELECT * FROM available_slots 
+            WHERE barber_id = ? AND slot_date = ? AND is_booked = 0 
+            ORDER BY slot_time
+        ");
+        $stmt->execute([$barberId, $date]);
+        return $stmt->fetchAll();
+    } catch (Exception $e) {
+        error_log('Error fetching slots: ' . $e->getMessage());
+        return [];
+    }
+}
+
+function checkSlotAvailability($barberId, $date, $time) {
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) as count FROM available_slots 
+            WHERE barber_id = ? AND slot_date = ? AND slot_time = ? AND is_booked = 0
+        ");
+        $stmt->execute([$barberId, $date, $time]);
+        $result = $stmt->fetch();
+        return $result['count'] > 0;
+    } catch (Exception $e) {
+        error_log('Error checking slot: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Booking Functions
+ */
+
+function createBooking($customerId, $barberId, $serviceId, $date, $time) {
+    global $pdo;
+    try {
+        // Check if slot is available
+        if (!checkSlotAvailability($barberId, $date, $time)) {
+            return ['success' => false, 'message' => 'Selected slot is not available'];
+        }
+        
+        // Check for double booking
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) as count FROM bookings 
+            WHERE barber_id = ? AND booking_date = ? AND booking_time = ? 
+            AND status IN ('pending', 'confirmed')
+        ");
+        $stmt->execute([$barberId, $date, $time]);
+        $result = $stmt->fetch();
+        
+        if ($result['count'] > 0) {
+            return ['success' => false, 'message' => 'This slot is no longer available'];
+        }
+        
+        // Create booking
+        $stmt = $pdo->prepare("
+            INSERT INTO bookings (customer_id, barber_id, service_id, booking_date, booking_time, status) 
+            VALUES (?, ?, ?, ?, ?, 'confirmed')
+        ");
+        
+        if ($stmt->execute([$customerId, $barberId, $serviceId, $date, $time])) {
+            // Mark slot as booked
+            $pdo->prepare("UPDATE available_slots SET is_booked = 1 WHERE barber_id = ? AND slot_date = ? AND slot_time = ?")
+                ->execute([$barberId, $date, $time]);
+            
+            $bookingId = $pdo->lastInsertId();
+            return ['success' => true, 'booking_id' => $bookingId];
+        }
+    } catch (Exception $e) {
+        error_log('Error creating booking: ' . $e->getMessage());
+    }
+    
+    return ['success' => false, 'message' => 'Failed to create booking'];
+}
+
+function getCustomerBookings($customerId) {
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare("
+            SELECT b.*, u.name as barber_name, s.name as service_name, s.price 
+            FROM bookings b
+            JOIN users u ON b.barber_id = u.id
+            JOIN services s ON b.service_id = s.id
+            WHERE b.customer_id = ?
+            ORDER BY b.booking_date DESC, b.booking_time DESC
+        ");
+        $stmt->execute([$customerId]);
+        return $stmt->fetchAll();
+    } catch (Exception $e) {
+        error_log('Error fetching customer bookings: ' . $e->getMessage());
+        return [];
+    }
+}
+
+function getBarberBookings($barberId, $startDate = null, $endDate = null) {
+    global $pdo;
+    try {
+        if (!$startDate) {
+            $startDate = date('Y-m-d');
+        }
+        if (!$endDate) {
+            $endDate = date('Y-m-d', strtotime('+30 days'));
+        }
+        
+        $stmt = $pdo->prepare("
+            SELECT b.*, u.name as customer_name, u.email as customer_email, s.name as service_name, s.duration 
+            FROM bookings b
+            JOIN users u ON b.customer_id = u.id
+            JOIN services s ON b.service_id = s.id
+            WHERE b.barber_id = ? AND b.booking_date BETWEEN ? AND ?
+            ORDER BY b.booking_date ASC, b.booking_time ASC
+        ");
+        $stmt->execute([$barberId, $startDate, $endDate]);
+        return $stmt->fetchAll();
+    } catch (Exception $e) {
+        error_log('Error fetching barber bookings: ' . $e->getMessage());
+        return [];
+    }
+}
+
+function cancelBooking($bookingId, $customerId = null) {
+    global $pdo;
+    try {
+        // Get booking details
+        $stmt = $pdo->prepare("SELECT * FROM bookings WHERE id = ?");
+        $stmt->execute([$bookingId]);
+        $booking = $stmt->fetch();
+        
+        if (!$booking) {
+            return false;
+        }
+        
+        // Check authorization
+        if ($customerId && $booking['customer_id'] != $customerId) {
+            return false;
+        }
+        
+        // Update booking status
+        $pdo->prepare("UPDATE bookings SET status = 'cancelled' WHERE id = ?")->execute([$bookingId]);
+        
+        // Free up the slot
+        $pdo->prepare("UPDATE available_slots SET is_booked = 0 WHERE barber_id = ? AND slot_date = ? AND slot_time = ?")
+            ->execute([$booking['barber_id'], $booking['booking_date'], $booking['booking_time']]);
+        
+        return true;
+    } catch (Exception $e) {
+        error_log('Error cancelling booking: ' . $e->getMessage());
+        return false;
+    }
+}
+
+function getBookingStats($barberId = null) {
+    global $pdo;
+    try {
+        if ($barberId) {
+            // Barber-specific stats
+            $stmt = $pdo->prepare("
+                SELECT 
+                    COUNT(*) as total_bookings,
+                    SUM(CASE WHEN status = 'confirmed' THEN 1 ELSE 0 END) as confirmed,
+                    SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
+                    SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled,
+                    SUM(s.price) as total_revenue
+                FROM bookings b
+                JOIN services s ON b.service_id = s.id
+                WHERE b.barber_id = ? AND b.booking_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            ");
+            $stmt->execute([$barberId]);
+        } else {
+            // System-wide stats
+            $stmt = $pdo->query("
+                SELECT 
+                    COUNT(*) as total_bookings,
+                    SUM(CASE WHEN status = 'confirmed' THEN 1 ELSE 0 END) as confirmed,
+                    SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
+                    SUM(s.price) as total_revenue
+                FROM bookings b
+                JOIN services s ON b.service_id = s.id
+                WHERE b.booking_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            ");
+        }
+        return $stmt->fetch();
+    } catch (Exception $e) {
+        error_log('Error fetching stats: ' . $e->getMessage());
+        return null;
+    }
 }
 
 ?>
