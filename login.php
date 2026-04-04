@@ -48,72 +48,73 @@ $isLoginPage = true;
     <title><?php echo htmlspecialchars($pageTitle); ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-50 text-slate-900">
-    <header class="bg-white border-b border-slate-200">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-            <a href="index.php" class="text-xl font-semibold">Smart Barber</a>
+<body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 text-gray-900 min-h-screen">
+    <header class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 shadow-lg">
+        <div class="max-w-6xl mx-auto px-4 py-5 flex items-center justify-between">
+            <a href="index.php" class="text-3xl font-bold text-white">✂️ Smart Barber</a>
             <nav class="flex gap-4 text-sm">
-                <a href="index.php" class="hover:text-blue-600">Home</a>
+                <a href="index.php" class="text-white hover:text-yellow-200 font-semibold transition">🏠 Home</a>
             </nav>
         </div>
     </header>
 
     <main class="max-w-6xl mx-auto px-4 py-8">
         <div class="max-w-md mx-auto">
-            <section class="bg-white border border-slate-200 rounded-xl p-8 mb-6">
-                <h1 class="text-2xl font-bold mb-2">Login</h1>
+            <section class="bg-white rounded-2xl p-8 mb-6 shadow-2xl border-2 border-indigo-200">
+                <h1 class="text-3xl font-bold mb-2 text-indigo-600">🔑 Login</h1>
+                <p class="text-gray-600 mb-6">Access your barber booking account</p>
 
                 <?php if ($error): ?>
-                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">
-                        <?php echo htmlspecialchars($error); ?>
+                    <div class="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm font-bold">
+                        ✗ <?php echo htmlspecialchars($error); ?>
                     </div>
                 <?php endif; ?>
 
                 <form method="POST" class="space-y-4">
                     <div>
-                        <label for="email" class="block text-sm font-medium mb-1">Email</label>
+                        <label for="email" class="block text-sm font-bold text-indigo-700 mb-1">📧 Email Address</label>
                         <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" 
-                               class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               class="w-full px-4 py-2 border-2 border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 font-medium"
                                required>
                     </div>
                     <div>
-                        <label for="password" class="block text-sm font-medium mb-1">Password</label>
+                        <label for="password" class="block text-sm font-bold text-purple-700 mb-1">🔐 Password</label>
                         <input type="password" id="password" name="password" 
-                               class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               class="w-full px-4 py-2 border-2 border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-500 font-medium"
                                required>
                     </div>
-                    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700">
-                        Login
+                    <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-lg font-bold hover:shadow-lg transition text-lg">
+                        ✓ Login
                     </button>
                 </form>
             </section>
 
-            <section class="bg-white border border-slate-200 rounded-xl p-6">
-                <h2 class="font-semibold mb-3">Demo Credentials</h2>
-                <div class="space-y-3 text-sm">
-                    <div class="border-l-4 border-blue-500 pl-3">
-                        <p class="font-medium text-slate-900">Customer</p>
-                        <p class="text-slate-600">Email: customer1@email.com</p>
-                        <p class="text-slate-600">Password: customer123</p>
+            <section class="bg-white rounded-2xl p-6 shadow-xl border-2 border-blue-200">
+                <h2 class="font-bold mb-4 text-lg text-blue-600">🎫 Demo Credentials</h2>
+                <div class="space-y-4 text-sm">
+                    <div class="border-l-4 border-cyan-500 pl-4 bg-cyan-50 p-3 rounded">
+                        <p class="font-bold text-cyan-700">👤 Customer</p>
+                        <p class="text-gray-700 font-semibold">📧 customer1@email.com</p>
+                        <p class="text-gray-700 font-semibold">🔐 customer123</p>
                     </div>
-                    <div class="border-l-4 border-green-500 pl-3">
-                        <p class="font-medium text-slate-900">Barber</p>
-                        <p class="text-slate-600">Email: barber1@email.com</p>
-                        <p class="text-slate-600">Password: barber123</p>
+                    <div class="border-l-4 border-green-500 pl-4 bg-green-50 p-3 rounded">
+                        <p class="font-bold text-green-700">👨‍💼 Barber</p>
+                        <p class="text-gray-700 font-semibold">📧 barber1@email.com</p>
+                        <p class="text-gray-700 font-semibold">🔐 barber123</p>
                     </div>
-                    <div class="border-l-4 border-purple-500 pl-3">
-                        <p class="font-medium text-slate-900">Admin</p>
-                        <p class="text-slate-600">Email: admin@email.com</p>
-                        <p class="text-slate-600">Password: admin123</p>
+                    <div class="border-l-4 border-orange-500 pl-4 bg-orange-50 p-3 rounded">
+                        <p class="font-bold text-orange-700">👨‍💼 Admin</p>
+                        <p class="text-gray-700 font-semibold">📧 admin@email.com</p>
+                        <p class="text-gray-700 font-semibold">🔐 admin123</p>
                     </div>
                 </div>
             </section>
         </div>
     </main>
 
-    <footer class="bg-white border-t border-slate-200 mt-12">
-        <div class="max-w-6xl mx-auto px-4 py-4 text-center text-xs text-slate-500">
-            Smart Barber Booking System - Week 2 (Authentication)
+    <footer class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white mt-12 shadow-lg">
+        <div class="max-w-6xl mx-auto px-4 py-4 text-center text-sm font-semibold">
+            ✂️ Smart Barber Booking System - Professional Appointment Management
         </div>
     </footer>
 </body>

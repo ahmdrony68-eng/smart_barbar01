@@ -13,57 +13,60 @@ $currentBarber = getUserById(getCurrentUser());
 $myServices = getBarberServices(getCurrentUser());
 ?>
 
-<section class="bg-white border border-slate-200 rounded-xl p-6 mb-6">
-    <h1 class="text-2xl font-bold mb-2">Dashboard</h1>
-    <p class="text-slate-600 text-sm">Manage your profile, services, and appointments.</p>
+<section class="bg-gradient-to-r from-purple-500 to-indigo-500 rounded-xl p-8 mb-8 text-white shadow-lg">
+    <h1 class="text-3xl font-bold mb-2">👨‍💼 Barber Dashboard</h1>
+    <p class="text-purple-100">Manage your profile, services, roster, and appointments</p>
 </section>
 
-<div class="grid md:grid-cols-2 gap-6 mb-6">
+<div class="grid md:grid-cols-2 gap-6 mb-8">
     <!-- Profile -->
-    <section class="bg-white border border-slate-200 rounded-xl p-6">
-        <h2 class="text-lg font-semibold mb-4">Your Profile</h2>
-        <div class="space-y-3 text-sm">
+    <section class="bg-white rounded-xl p-6 shadow-lg border-2 border-purple-200">
+        <h2 class="text-lg font-bold mb-4 text-purple-600">👤 Your Profile</h2>
+        <div class="space-y-3 text-sm bg-purple-50 p-4 rounded-lg">
             <div>
-                <p class="text-slate-600">Name</p>
-                <p class="font-medium"><?php echo htmlspecialchars($currentBarber['name']); ?></p>
+                <p class="text-purple-600 font-semibold text-xs">Name</p>
+                <p class="font-bold text-gray-800"><?php echo htmlspecialchars($currentBarber['name']); ?></p>
             </div>
             <div>
-                <p class="text-slate-600">Email</p>
-                <p class="font-medium"><?php echo htmlspecialchars($currentBarber['email']); ?></p>
+                <p class="text-purple-600 font-semibold text-xs">Email</p>
+                <p class="font-bold text-gray-800 break-all"><?php echo htmlspecialchars($currentBarber['email']); ?></p>
             </div>
             <div>
-                <p class="text-slate-600">Specialization</p>
-                <p class="font-medium"><?php echo htmlspecialchars($currentBarber['specialization'] ?? 'Not set'); ?></p>
+                <p class="text-purple-600 font-semibold text-xs">Specialization</p>
+                <p class="font-bold text-gray-800"><?php echo htmlspecialchars($currentBarber['specialization'] ?? 'Not set'); ?></p>
             </div>
         </div>
         
-        <div class="mt-4 flex gap-2">
-            <a href="manage_roster.php" class="flex-1 text-center bg-blue-600 text-white py-2 rounded font-medium hover:bg-blue-700">
-                Manage Roster
+        <div class="mt-5 flex flex-col gap-2">
+            <a href="manage_roster.php" class="block text-center bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-2 rounded-lg font-bold hover:shadow-lg transition">
+                📅 Manage Roster
             </a>
-            <a href="my_appointments.php" class="flex-1 text-center bg-slate-600 text-white py-2 rounded font-medium hover:bg-slate-700">
-                My Appointments
+            <a href="my_appointments.php" class="block text-center bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-2 rounded-lg font-bold hover:shadow-lg transition">
+                📋 My Appointments
+            </a>
+            <a href="manage_bookings.php" class="block text-center bg-gradient-to-r from-orange-500 to-pink-500 text-white py-2 rounded-lg font-bold hover:shadow-lg transition">
+                ✓ Confirm/Cancel Bookings
             </a>
         </div>
     </section>
     
     <!-- Services -->
-    <section class="bg-white border border-slate-200 rounded-xl p-6">
-        <h2 class="text-lg font-semibold mb-4">Your Services</h2>
+    <section class="bg-white rounded-xl p-6 shadow-lg border-2 border-indigo-200">
+        <h2 class="text-lg font-bold mb-4 text-indigo-600">🎨 Your Services</h2>
         <?php if (count($myServices) > 0): ?>
             <div class="space-y-2">
                 <?php foreach ($myServices as $service): ?>
-                    <div class="border border-slate-200 rounded p-2 text-sm">
-                        <div class="flex justify-between">
-                            <span><?php echo htmlspecialchars($service['name']); ?></span>
-                            <span class="font-medium">$<?php echo number_format($service['price'], 2); ?></span>
+                    <div class="border-2 border-indigo-200 rounded-lg p-3 bg-indigo-50 text-sm hover:shadow-md transition">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-gray-800">✂️ <?php echo htmlspecialchars($service['name']); ?></span>
+                            <span class="font-bold text-indigo-600">$<?php echo number_format($service['price'], 2); ?></span>
                         </div>
-                        <p class="text-xs text-slate-600"><?php echo $service['duration']; ?> mins</p>
+                        <p class="text-xs text-indigo-600 font-semibold mt-1">⏱️ <?php echo $service['duration']; ?> mins</p>
                     </div>
                 <?php endforeach; ?>
             </div>
         <?php else: ?>
-            <p class="text-sm text-slate-600">No services assigned yet.</p>
+            <p class="text-sm font-semibold text-indigo-600 bg-indigo-50 p-3 rounded-lg">📌 No services assigned yet.</p>
         <?php endif; ?>
     </section>
 </div>

@@ -450,4 +450,153 @@ function getBookingStats($barberId = null) {
     }
 }
 
+/**
+ * Booking Status Management
+ */
+
+function updateBookingStatus($bookingId, $newStatus, $authorizedRole = null, $userId = null) {
+    global $pdo;
+    try {
+        // Validate status
+        $validStatuses = ['pending', 'confirmed', 'completed', 'cancelled'];
+        if (!in_array($newStatus, $validStatuses)) {
+            return ['success' => false, 'message' => 'Invalid status'];
+        }
+        
+        // Get booking
+        $stmt = $pdo->prepare("SELECT * FROM bookings WHERE id = ?");
+        $stmt->execute([$bookingId]);
+        $booking = $stmt->fetch();
+        
+        if (!$booking) {
+            return ['success' => false, 'message' => 'Booking not found'];
+        }
+        
+        // Check authorization
+        if ($authorizedRole === 'barber' && $booking['barber_id'] != $userId) {
+            return ['success' => false, 'message' => 'Not authorized'];
+        }
+        if ($authorizedRole === 'customer' && $booking['customer_id'] != $userId) {
+            return ['success' => false, 'message' => 'Not authorized'];
+        }
+        
+        // Update status
+        $pdo->prepare("UPDATE bookings SET status = ? WHERE id = ?")->execute([$newStatus, $bookingId]);
+        
+        // If cancelled, free up the slot
+        if ($newStatus === 'cancelled') {
+            $pdo->prepare("UPDATE available_slots SET is_booked = 0 WHERE barber_id = ? AND slot_date = ? AND slot_time = ?")
+                ->execute([$booking['barber_id'], $booking['booking_date'], $booking['booking_time']]);
+        }
+        
+        return ['success' => true, 'message' => 'Booking updated successfully'];
+    } catch (Exception $e) {
+        error_log('Error updating booking status: ' . $e->getMessage());
+        return ['success' => false, 'message' => 'Database error'];
+    }
+}
+
+function getBookingById($bookingId) {
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare("
+            SELECT b.*, u.name as barber_name, s.name as service_name, s.price, c.name as customer_name, c.email as customer_email
+            FROM bookings b
+            JOIN users u ON b.barber_id = u.id
+            JOIN services s ON b.service_id = s.id
+            JOIN users c ON b.customer_id = c.id
+            WHERE b.id = ?
+        ");
+        $stmt->execute([$bookingId]);
+        return $stmt->fetch();
+    } catch (Exception $e) {
+        error_log('Error fetching booking: ' . $e->getMessage());
+        return null;
+    }
+}
+
+function getAllBookings($filter = null, $limit = 50, $offset = 0) {
+    global $pdo;
+    try {
+        $query = "
+            SELECT b.*, u.name as barber_name, s.name as service_name, s.price, c.name as customer_name
+            FROM bookings b
+            JOIN users u ON b.barber_id = u.id
+            JOIN services s ON b.service_id = s.id
+            JOIN users c ON b.customer_id = c.id
+        ";
+        
+        if ($filter === 'pending') {
+            $query .= " WHERE b.status = 'pending'";
+        } elseif ($filter === 'upcoming') {
+            $query .= " WHERE b.status = 'confirmed' AND b.booking_date >= CURDATE()";
+        } elseif ($filter === 'today') {
+            $query .= " WHERE b.booking_date = CURDATE()";
+        }
+        
+        $query .= " ORDER BY b.booking_date DESC, b.booking_time DESC LIMIT ? OFFSET ?";
+        
+        $stmt = $pdo->prepare($query);
+        $stmt->execute([$limit, $offset]);
+        return $stmt->fetchAll();
+    } catch (Exception $e) {
+        error_log('Error fetching all bookings: ' . $e->getMessage());
+        return [];
+    }
+}
+
+function getAnalyticsReport() {
+    global $pdo;
+    try {
+        $report = [];
+        
+        // Total by status
+        $stmt = $pdo->query("
+            SELECT status, COUNT(*) as count FROM bookings 
+            WHERE booking_date >= DATE_SUB(CURDATE(), INTERVAL 60 DAY)
+            GROUP BY status
+        ");
+        $report['by_status'] = $stmt->fetchAll();
+        
+        // Top services
+        $stmt = $pdo->query("
+            SELECT s.name, COUNT(*) as count, SUM(s.price) as revenue 
+            FROM bookings b
+            JOIN services s ON b.service_id = s.id
+            WHERE b.booking_date >= DATE_SUB(CURDATE(), INTERVAL 60 DAY)
+            GROUP BY s.id
+            ORDER BY count DESC LIMIT 5
+        ");
+        $report['top_services'] = $stmt->fetchAll();
+        
+        // Top barbers
+        $stmt = $pdo->query("
+            SELECT u.name, COUNT(*) as bookings, SUM(s.price) as revenue 
+            FROM bookings b
+            JOIN users u ON b.barber_id = u.id
+            JOIN services s ON b.service_id = s.id
+            WHERE b.booking_date >= DATE_SUB(CURDATE(), INTERVAL 60 DAY)
+            GROUP BY u.id
+            ORDER BY bookings DESC LIMIT 5
+        ");
+        $report['top_barbers'] = $stmt->fetchAll();
+        
+        // Daily totals
+        $stmt = $pdo->query("
+            SELECT DATE(booking_date) as date, COUNT(*) as bookings, SUM(s.price) as revenue
+            FROM bookings b
+            JOIN services s ON b.service_id = s.id
+            WHERE booking_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            GROUP BY DATE(booking_date)
+            ORDER BY date DESC
+        ");
+        $report['daily'] = $stmt->fetchAll();
+        
+        return $report;
+    } catch (Exception $e) {
+        error_log('Error generating analytics: ' . $e->getMessage());
+        return [];
+    }
+}
+
 ?>

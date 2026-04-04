@@ -45,13 +45,13 @@ $pageTitle = 'Book Appointment';
 require __DIR__ . '/partials/header.php';
 ?>
 
-<section class="bg-white border border-slate-200 rounded-xl p-6 mb-6">
-    <h1 class="text-2xl font-bold mb-2">Book Your Appointment</h1>
-    <p class="text-slate-600 text-sm">Select a barber, service, date, and time to book your appointment</p>
+<section class="bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-8 mb-8 text-white shadow-lg">
+    <h1 class="text-3xl font-bold mb-2">✂️ Book Your Appointment</h1>
+    <p class="text-green-100">Select a barber, service, date, and time to book your perfect appointment</p>
 </section>
 
 <?php if ($booking_result): ?>
-    <div class="<?php echo ($booking_result['success'] ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'); ?> border px-4 py-3 rounded-lg mb-4">
+    <div class="<?php echo ($booking_result['success'] ? 'bg-green-50 border-l-4 border-green-500 text-green-700' : 'bg-red-50 border-l-4 border-red-500 text-red-700'); ?> px-6 py-4 rounded-lg mb-6 shadow-md font-bold">
         <?php if ($booking_result['success']): ?>
             ✓ <strong>Booking Confirmed!</strong> Your appointment has been confirmed. You can view it in your booking history.
         <?php else: ?>
@@ -63,83 +63,83 @@ require __DIR__ . '/partials/header.php';
 <div class="grid md:grid-cols-3 gap-6">
     <!-- Booking Form -->
     <div class="md:col-span-2">
-        <form method="POST" class="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
+        <form method="POST" class="bg-white rounded-xl p-6 shadow-lg border-2 border-green-200 space-y-5">
             <input type="hidden" name="action" value="book">
             
             <div>
-                <label for="barber_id" class="block text-sm font-medium mb-2">Select Barber</label>
-                <select name="barber_id" id="barber_id" class="w-full px-3 py-2 border border-slate-300 rounded-lg" required onchange="updateServices(this.value)">
+                <label for="barber_id" class="block text-sm font-bold text-green-700 mb-2">👨‍💼 Select Barber</label>
+                <select name="barber_id" id="barber_id" class="w-full px-4 py-2 border-2 border-green-300 rounded-lg focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 font-medium" required onchange="updateServices(this.value)">
                     <option value="">-- Choose Barber --</option>
                     <?php foreach ($barbers as $barber): ?>
                         <option value="<?php echo $barber['id']; ?>">
-                            <?php echo htmlspecialchars($barber['name'] . ' - ' . $barber['specialization']); ?>
+                            👨‍💼 <?php echo htmlspecialchars($barber['name'] . ' - ' . $barber['specialization']); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
             </div>
             
             <div>
-                <label for="service_id" class="block text-sm font-medium mb-2">Select Service</label>
-                <select name="service_id" id="service_id" class="w-full px-3 py-2 border border-slate-300 rounded-lg" required>
+                <label for="service_id" class="block text-sm font-bold text-emerald-700 mb-2">🎨 Select Service</label>
+                <select name="service_id" id="service_id" class="w-full px-4 py-2 border-2 border-emerald-300 rounded-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 font-medium" required>
                     <option value="">-- Choose Service --</option>
                     <?php foreach ($services as $service): ?>
                         <option value="<?php echo $service['id']; ?>">
-                            <?php echo htmlspecialchars($service['name'] . ' - $' . number_format($service['price'], 2) . ' (' . $service['duration'] . ' mins)'); ?>
+                            🎨 <?php echo htmlspecialchars($service['name'] . ' - $' . number_format($service['price'], 2) . ' (' . $service['duration'] . ' mins)'); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
             </div>
             
             <div>
-                <label for="booking_date" class="block text-sm font-medium mb-2">Select Date</label>
+                <label for="booking_date" class="block text-sm font-bold text-green-700 mb-2">📅 Select Date</label>
                 <input 
                     type="date" 
                     name="booking_date" 
                     id="booking_date" 
                     min="<?php echo date('Y-m-d'); ?>"
                     max="<?php echo date('Y-m-d', strtotime('+90 days')); ?>"
-                    class="w-full px-3 py-2 border border-slate-300 rounded-lg" 
+                    class="w-full px-4 py-2 border-2 border-green-300 rounded-lg focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 font-medium" 
                     required
                     onchange="updateSlots()"
                 >
             </div>
             
             <div>
-                <label for="booking_time" class="block text-sm font-medium mb-2">Select Time</label>
-                <select name="booking_time" id="booking_time" class="w-full px-3 py-2 border border-slate-300 rounded-lg" required disabled>
+                <label for="booking_time" class="block text-sm font-bold text-emerald-700 mb-2">🕐 Select Time</label>
+                <select name="booking_time" id="booking_time" class="w-full px-4 py-2 border-2 border-emerald-300 rounded-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 font-medium" required disabled>
                     <option value="">-- Choose Time --</option>
                 </select>
             </div>
             
-            <button type="submit" class="w-full bg-green-600 text-white py-2 rounded font-medium hover:bg-green-700">
-                Confirm Booking
+            <button type="submit" class="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 rounded-lg font-bold hover:shadow-lg transition text-lg">
+                ✓ Confirm Booking
             </button>
         </form>
     </div>
     
     <!-- Booking Summary -->
-    <div class="bg-white border border-slate-200 rounded-xl p-6">
-        <h3 class="font-semibold mb-4">Booking Summary</h3>
-        <div class="space-y-3 text-sm">
-            <div>
-                <p class="text-slate-600">Barber</p>
-                <p class="font-medium" id="summary_barber">-</p>
+    <div class="bg-gradient-to-b from-green-50 to-emerald-50 rounded-xl p-6 shadow-lg border-2 border-green-300">
+        <h3 class="font-bold text-lg mb-4 text-green-700">📋 Booking Summary</h3>
+        <div class="space-y-4 text-sm">
+            <div class="pb-3 border-b-2 border-green-200">
+                <p class="text-green-600 font-semibold text-xs">Barber</p>
+                <p class="font-bold text-gray-800 text-base" id="summary_barber">-</p>
             </div>
-            <div>
-                <p class="text-slate-600">Service</p>
-                <p class="font-medium" id="summary_service">-</p>
+            <div class="pb-3 border-b-2 border-green-200">
+                <p class="text-emerald-600 font-semibold text-xs">Service</p>
+                <p class="font-bold text-gray-800 text-base" id="summary_service">-</p>
             </div>
-            <div>
-                <p class="text-slate-600">Date</p>
-                <p class="font-medium" id="summary_date">-</p>
+            <div class="pb-3 border-b-2 border-green-200">
+                <p class="text-green-600 font-semibold text-xs">Date</p>
+                <p class="font-bold text-gray-800 text-base" id="summary_date">-</p>
             </div>
-            <div>
-                <p class="text-slate-600">Time</p>
-                <p class="font-medium" id="summary_time">-</p>
+            <div class="pb-3 border-b-2 border-green-200">
+                <p class="text-emerald-600 font-semibold text-xs">Time</p>
+                <p class="font-bold text-gray-800 text-base" id="summary_time">-</p>
             </div>
-            <div class="border-t border-slate-200 pt-3">
-                <p class="text-slate-600">Price</p>
-                <p class="font-semibold text-lg text-green-600" id="summary_price">-</p>
+            <div class="pt-3">
+                <p class="text-green-600 font-semibold text-xs">Price</p>
+                <p class="font-bold text-2xl text-green-600" id="summary_price">-</p>
             </div>
         </div>
     </div>
