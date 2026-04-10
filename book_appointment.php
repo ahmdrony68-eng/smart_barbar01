@@ -68,7 +68,7 @@ require __DIR__ . '/partials/header.php';
             
             <div>
                 <label for="barber_id" class="block text-sm font-bold text-green-700 mb-2">👨‍💼 Select Barber</label>
-                <select name="barber_id" id="barber_id" class="w-full px-4 py-2 border-2 border-green-300 rounded-lg focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 font-medium" required onchange="updateServices(this.value)">
+                <select name="barber_id" id="barber_id" class="w-full px-4 py-2 border-2 border-green-300 rounded-lg focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 font-medium" required onchange="updateServices(this.value); updateSlots();">
                     <option value="">-- Choose Barber --</option>
                     <?php foreach ($barbers as $barber): ?>
                         <option value="<?php echo $barber['id']; ?>">
@@ -153,27 +153,43 @@ function updateServices(barberId) {
 function updateSlots() {
     const barberId = document.getElementById('barber_id').value;
     const date = document.getElementById('booking_date').value;
+    const timeSelect = document.getElementById('booking_time');
     
-    if (!barberId || !date) {
-        document.getElementById('booking_time').disabled = true;
+    // Reset time select
+    timeSelect.innerHTML = '<option value="">-- Choose Time --</option>';
+    timeSelect.disabled = true;
+    
+    if (!barberId) {
+        timeSelect.innerHTML = '<option disabled>Please select a barber first</option>';
+        return;
+    }
+    
+    if (!date) {
+        timeSelect.innerHTML = '<option disabled>Please select a date</option>';
         return;
     }
     
     document.getElementById('summary_date').textContent = new Date(date).toLocaleDateString();
     
+    // Show loading message
+    timeSelect.innerHTML = '<option disabled>Loading times...</option>';
+    
     fetch('', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'action=get_slots&barber_id=' + barberId + '&date=' + date
+        body: 'action=get_slots&barber_id=' + encodeURIComponent(barberId) + '&date=' + encodeURIComponent(date)
     })
-    .then(r => r.json())
+    .then(r => {
+        if (!r.ok) throw new Error('Network error: ' + r.status);
+        return r.json();
+    })
     .then(slots => {
         const select = document.getElementById('booking_time');
         select.innerHTML = '<option value="">-- Choose Time --</option>';
         
-        if (slots.length === 0) {
+        if (!Array.isArray(slots) || slots.length === 0) {
             select.disabled = true;
-            select.innerHTML += '<option disabled>No available slots</option>';
+            select.innerHTML = '<option disabled>❌ No available slots for this date</option>';
         } else {
             slots.forEach(slot => {
                 const opt = document.createElement('option');
@@ -183,6 +199,11 @@ function updateSlots() {
             });
             select.disabled = false;
         }
+    })
+    .catch(error => {
+        console.error('Slot loading error:', error);
+        timeSelect.innerHTML = '<option disabled>❌ Error loading slots</option>';
+        timeSelect.disabled = true;
     });
 }
 

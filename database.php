@@ -129,6 +129,7 @@ function seedDatabase() {
     $users = [
         ['customer1@email.com', password_hash('customer123', PASSWORD_BCRYPT), 'Ahmed Hassan', 'customer', null],
         ['customer2@email.com', password_hash('customer456', PASSWORD_BCRYPT), 'Fatima Ali', 'customer', null],
+        ['customer3@email.com', password_hash('customer789', PASSWORD_BCRYPT), 'Sara Khan', 'customer', null],
         ['barber1@email.com', password_hash('barber123', PASSWORD_BCRYPT), 'Ali Khan', 'barber', 'Fade Specialist'],
         ['barber2@email.com', password_hash('barber456', PASSWORD_BCRYPT), 'Usman Raza', 'barber', 'Beard Grooming'],
         ['barber3@email.com', password_hash('barber789', PASSWORD_BCRYPT), 'Hamza Noor', 'barber', 'Kids Styling'],
@@ -154,24 +155,56 @@ function seedDatabase() {
         $stmt->execute($service);
     }
     
-    // Seed sample rosters
+    // Seed sample rosters for all 3 barbers
+    // Barber IDs: 4 (Ali Khan), 5 (Usman Raza), 6 (Hamza Noor)
     $rosters = [
-        [3, 'Monday', '09:00:00', '18:00:00'],
-        [3, 'Tuesday', '09:00:00', '18:00:00'],
-        [3, 'Wednesday', '09:00:00', '18:00:00'],
-        [3, 'Thursday', '09:00:00', '18:00:00'],
-        [3, 'Friday', '10:00:00', '19:00:00'],
-        [4, 'Monday', '11:00:00', '19:00:00'],
-        [4, 'Tuesday', '11:00:00', '19:00:00'],
-        [4, 'Wednesday', '11:00:00', '19:00:00'],
-        [4, 'Thursday', '11:00:00', '19:00:00'],
+        // Barber 1 (Ali Khan) - ID 4
+        [4, 'Monday', '09:00:00', '18:00:00'],
+        [4, 'Tuesday', '09:00:00', '18:00:00'],
+        [4, 'Wednesday', '09:00:00', '18:00:00'],
+        [4, 'Thursday', '09:00:00', '18:00:00'],
+        [4, 'Friday', '09:00:00', '18:00:00'],
         [4, 'Saturday', '10:00:00', '17:00:00'],
+        
+        // Barber 2 (Usman Raza) - ID 5
+        [5, 'Monday', '11:00:00', '19:00:00'],
+        [5, 'Tuesday', '11:00:00', '19:00:00'],
+        [5, 'Wednesday', '11:00:00', '19:00:00'],
+        [5, 'Thursday', '11:00:00', '19:00:00'],
+        [5, 'Friday', '11:00:00', '19:00:00'],
+        [5, 'Saturday', '10:00:00', '17:00:00'],
+        
+        // Barber 3 (Hamza Noor) - ID 6
+        [6, 'Monday', '10:00:00', '17:00:00'],
+        [6, 'Tuesday', '10:00:00', '17:00:00'],
+        [6, 'Wednesday', '10:00:00', '17:00:00'],
+        [6, 'Thursday', '10:00:00', '17:00:00'],
+        [6, 'Friday', '10:00:00', '17:00:00'],
+        [6, 'Sunday', '12:00:00', '18:00:00'],
     ];
     
     $stmt = $pdo->prepare("INSERT INTO barber_roster (barber_id, day_of_week, start_time, end_time) VALUES (?, ?, ?, ?)");
     foreach ($rosters as $roster) {
         $stmt->execute($roster);
     }
+    
+    // Seed barber services (assign services to each barber)
+    // Service IDs: 1=Fade, 2=Beard, 3=Kids, 4=Wash, 5=Full Grooming
+    // Barber 1 (Ali Khan - ID 4): Fade, Beard Styling, Full Grooming
+    $stmt = $pdo->prepare("INSERT IGNORE INTO barber_services (barber_id, service_id) VALUES (?, ?)");
+    $stmt->execute([4, 1]); // Fade
+    $stmt->execute([4, 2]); // Beard Styling
+    $stmt->execute([4, 5]); // Full Grooming
+    
+    // Barber 2 (Usman Raza - ID 5): Beard Styling, Hair Wash, Full Grooming
+    $stmt->execute([5, 2]); // Beard Styling
+    $stmt->execute([5, 4]); // Hair Wash
+    $stmt->execute([5, 5]); // Full Grooming
+    
+    // Barber 3 (Hamza Noor - ID 6): Kids Haircut, Fade, Hair Wash
+    $stmt->execute([6, 1]); // Fade
+    $stmt->execute([6, 3]); // Kids Haircut
+    $stmt->execute([6, 4]); // Hair Wash
 }
 
 /**
@@ -367,7 +400,7 @@ function getBarberBookings($barberId, $startDate = null, $endDate = null) {
         }
         
         $stmt = $pdo->prepare("
-            SELECT b.*, u.name as customer_name, u.email as customer_email, s.name as service_name, s.duration 
+            SELECT b.*, u.name as customer_name, u.email as customer_email, s.name as service_name, s.duration, s.price 
             FROM bookings b
             JOIN users u ON b.customer_id = u.id
             JOIN services s ON b.service_id = s.id

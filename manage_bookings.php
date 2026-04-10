@@ -86,7 +86,7 @@ $filter = $_GET['filter'] ?? 'all';
                             <td class="px-6 py-4"><?php echo htmlspecialchars($booking['barber_name'] ?? 'N/A'); ?></td>
                             <td class="px-6 py-4">
                                 <span class="text-sm"><?php echo htmlspecialchars($booking['service_name']); ?></span><br>
-                                <span class="text-xs text-gray-600">$<?php echo number_format($booking['price'], 2); ?></span>
+                                <span class="text-xs text-gray-600">$<?php echo number_format($booking['price'] ?? 0, 2); ?></span>
                             </td>
                             <td class="px-6 py-4">
                                 <span class="font-medium"><?php echo date('M d, Y', strtotime($booking['booking_date'])); ?></span><br>
@@ -98,13 +98,23 @@ $filter = $_GET['filter'] ?? 'all';
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-center">
-                                <div class="flex justify-center gap-2">
+                                <div class="flex justify-center gap-2 flex-wrap">
                                     <?php if ($booking['status'] === 'pending' && (hasRole('barber') || hasRole('admin'))): ?>
                                         <form method="POST" class="inline">
                                             <input type="hidden" name="booking_id" value="<?php echo $booking['id']; ?>">
                                             <input type="hidden" name="new_status" value="confirmed">
                                             <button type="submit" class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-xs font-medium transition">
                                                 ✓ Confirm
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($booking['status'] === 'confirmed' && hasRole('barber')): ?>
+                                        <form method="POST" class="inline">
+                                            <input type="hidden" name="booking_id" value="<?php echo $booking['id']; ?>">
+                                            <input type="hidden" name="new_status" value="completed">
+                                            <button type="submit" class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-xs font-medium transition">
+                                                ✔️ Complete
                                             </button>
                                         </form>
                                     <?php endif; ?>

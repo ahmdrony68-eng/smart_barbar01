@@ -91,21 +91,34 @@ $isLoginPage = true;
 
             <section class="bg-white rounded-2xl p-6 shadow-xl border-2 border-blue-200">
                 <h2 class="font-bold mb-4 text-lg text-blue-600">🎫 Demo Credentials</h2>
-                <div class="space-y-4 text-sm">
-                    <div class="border-l-4 border-cyan-500 pl-4 bg-cyan-50 p-3 rounded">
-                        <p class="font-bold text-cyan-700">👤 Customer</p>
-                        <p class="text-gray-700 font-semibold">📧 customer1@email.com</p>
-                        <p class="text-gray-700 font-semibold">🔐 customer123</p>
+                <div class="space-y-2 text-sm">
+                    <div class="border-l-4 border-cyan-500 pl-4 bg-cyan-50 p-2 rounded">
+                        <p class="font-bold text-cyan-700">👤 Customer 1</p>
+                        <p class="text-gray-700 font-semibold text-xs">📧 customer1@email.com / 🔐 customer123</p>
                     </div>
-                    <div class="border-l-4 border-green-500 pl-4 bg-green-50 p-3 rounded">
-                        <p class="font-bold text-green-700">👨‍💼 Barber</p>
-                        <p class="text-gray-700 font-semibold">📧 barber1@email.com</p>
-                        <p class="text-gray-700 font-semibold">🔐 barber123</p>
+                    <div class="border-l-4 border-cyan-500 pl-4 bg-cyan-50 p-2 rounded">
+                        <p class="font-bold text-cyan-700">👤 Customer 2</p>
+                        <p class="text-gray-700 font-semibold text-xs">📧 customer2@email.com / 🔐 customer456</p>
                     </div>
-                    <div class="border-l-4 border-orange-500 pl-4 bg-orange-50 p-3 rounded">
+                    <div class="border-l-4 border-cyan-500 pl-4 bg-cyan-50 p-2 rounded">
+                        <p class="font-bold text-cyan-700">👤 Customer 3</p>
+                        <p class="text-gray-700 font-semibold text-xs">📧 customer3@email.com / 🔐 customer789</p>
+                    </div>
+                    <div class="border-l-4 border-green-500 pl-4 bg-green-50 p-2 rounded">
+                        <p class="font-bold text-green-700">👨‍💼 Barber 1</p>
+                        <p class="text-gray-700 font-semibold text-xs">📧 barber1@email.com / 🔐 barber123</p>
+                    </div>
+                    <div class="border-l-4 border-green-500 pl-4 bg-green-50 p-2 rounded">
+                        <p class="font-bold text-green-700">👨‍💼 Barber 2</p>
+                        <p class="text-gray-700 font-semibold text-xs">📧 barber2@email.com / 🔐 barber456</p>
+                    </div>
+                    <div class="border-l-4 border-green-500 pl-4 bg-green-50 p-2 rounded">
+                        <p class="font-bold text-green-700">👨‍💼 Barber 3</p>
+                        <p class="text-gray-700 font-semibold text-xs">📧 barber3@email.com / 🔐 barber789</p>
+                    </div>
+                    <div class="border-l-4 border-orange-500 pl-4 bg-orange-50 p-2 rounded">
                         <p class="font-bold text-orange-700">👨‍💼 Admin</p>
-                        <p class="text-gray-700 font-semibold">📧 admin@email.com</p>
-                        <p class="text-gray-700 font-semibold">🔐 admin123</p>
+                        <p class="text-gray-700 font-semibold text-xs">📧 admin@email.com / 🔐 admin123</p>
                     </div>
                 </div>
             </section>
